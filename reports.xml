@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <report
+            id="produccion_costo_produccion"
+            string="Costo"
+            model="mrp.production"
+            report_type="qweb-pdf"
+            file="produccion.costo_produccion"
+            name="produccion.costo_produccion"
+        />
+
+    </data>
+</openerp>
