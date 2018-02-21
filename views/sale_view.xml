@@ -1,0 +1,16 @@
+<openerp>
+    <data>
+
+        <record model="ir.ui.view" id="produccion.view_order_form">
+            <field name="name">produccion.sale.order.form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <field name="company_id" position="after">
+                    <field name="costos_extras"/>
+                    <field name="total_costos"/>
+                </field>
+            </field>
+        </record>
+    </data>
+</openerp>

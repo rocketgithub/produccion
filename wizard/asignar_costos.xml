@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="produccion.asignar_costos_wizard_form_view" model="ir.ui.view">
+            <field name="name">asignar_costos_wizard.form</field>
+            <field name="model">produccion.asignar_costos.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Parametros">
+                    <group>
+                        <label string="Este wizard asigna costos."/>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="fecha_inicio"/>
+                            <field name="fecha_fin"/>
+                            <field name="wizard_move_ids" widget="many2many_tags"/>
+                            <field name="cuentas_costos_ids" widget="many2many_tags"/>
+                            <field name="cuenta_inventario_id"/>
+                            <field name="cuenta_costo_ventas_id"/>
+                            <field name="diario_id"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="asignar_costos" string="Asignar Costos" type="object"  class="oe_highlight"  />
+                        or
+                        <button string="Cancelar" class="oe_link" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <act_window name="Asignar Costos"
+            res_model="produccion.asignar_costos.wizard"
+            src_model="procurement.order"
+            view_mode="form"
+            target="new"
+            key2="client_action_multi"
+            id="action_asignar_costos_compute"/>
+
+        <menuitem action="action_asignar_costos_compute" id="menu_asignar_costos_compute" parent="mrp.menu_mrp_planning" groups="base.group_no_one"/>
+
+    </data>
+</openerp>
