@@ -17,6 +17,8 @@ Adaptaciones al módulo de producción
     'data': [
             'reports.xml',
             'views/costo_produccion.xml',
+            'views/sale_view.xml',
+            'wizard/asignar_costos.xml',
     ],
     'demo': [],
     'installable': True
