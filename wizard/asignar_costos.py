@@ -32,7 +32,8 @@ class asignar_costos(osv.osv_memory):
                         totales_cuentas_costos[line.account_id.id] += line.account_id.debit + line.account_id.credit
                         total_costos_asociados += move.amount
 
-            sale_ids = self.pool.get('sale.order').search(cr, uid, [('date_order', '>=', w.fecha_inicio), ('date_order', '<=', w.fecha_fin)])
+#            sale_ids = self.pool.get('sale.order').search(cr, uid, [('date_order', '>=', w.fecha_inicio), ('date_order', '<=', w.fecha_fin)])
+            sale_ids = self.pool.get('sale.order').search(cr, uid, [('state', '=', 'sent'),('date_confirm', '>=', w.fecha_inicio), ('date_confirm', '<=', w.fecha_fin)])
             total_costos_general = 0
             for sale in self.pool.get('sale.order').browse(cr, uid, sale_ids, context=context):
                 total_costos_pedido = 0
