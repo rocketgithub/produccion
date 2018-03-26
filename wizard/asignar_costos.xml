@@ -22,7 +22,7 @@
                         </group>
                     </group>
                     <footer>
-                        <button name="asignar_costos" string="Asignar Costos" type="object"  class="oe_highlight"  />
+                        <button name="boton_asignar_costos" string="Asignar Costos" type="object" class="oe_highlight" />
                         or
                         <button string="Cancelar" class="oe_link" special="cancel" />
                     </footer>
@@ -32,10 +32,8 @@
 
         <act_window name="Asignar Costos"
             res_model="produccion.asignar_costos.wizard"
-            src_model="procurement.order"
             view_mode="form"
             target="new"
-            key2="client_action_multi"
             id="action_asignar_costos_compute"/>
 
         <menuitem action="action_asignar_costos_compute" id="menu_asignar_costos_compute" parent="mrp.menu_mrp_planning" groups="base.group_no_one"/>

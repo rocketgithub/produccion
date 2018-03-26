@@ -116,6 +116,9 @@ class mrp_production(osv.osv):
             ##
             ## Cambiar el costo del producto
             ##
+            for produce_product in production.move_created_ids:
+                stock_mov_obj._store_average_cost_price(cr, uid, produce_product, context=context)
+
             for produce_product in production.move_created_ids2:
                 stock_mov_obj._store_average_cost_price(cr, uid, produce_product, context=context)
 

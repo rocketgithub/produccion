@@ -19,8 +19,9 @@ class asignar_costos(osv.osv_memory):
         'diario_id': fields.many2one('account.journal', 'Diario'),
     }
 
-    def asignar_costos(self, cr, uid, ids, context=None):
-        for w in self.browse(cr, uid, ids):
+    def boton_asignar_costos(self, cr, uid, ids, context=None):
+        logging.warn(ids)
+        for w in self.browse(cr, uid, ids, context):
             totales_cuentas_costos = {}
             for account in w.cuentas_costos_ids:
                 totales_cuentas_costos[account.id] = 0
@@ -29,8 +30,8 @@ class asignar_costos(osv.osv_memory):
             for move in w.wizard_move_ids:
                 for line in move.line_id:
                     if line.account_id.id in totales_cuentas_costos:
-                        totales_cuentas_costos[line.account_id.id] += line.account_id.debit + line.account_id.credit
-                        total_costos_asociados += move.amount
+                        totales_cuentas_costos[line.account_id.id] += line.debit - line.credit
+                        total_costos_asociados += line.debit - line.credit
 
 #            sale_ids = self.pool.get('sale.order').search(cr, uid, [('date_order', '>=', w.fecha_inicio), ('date_order', '<=', w.fecha_fin)])
             sale_ids = self.pool.get('sale.order').search(cr, uid, [('state', '=', 'sent'),('date_confirm', '>=', w.fecha_inicio), ('date_confirm', '<=', w.fecha_fin)])
@@ -44,13 +45,13 @@ class asignar_costos(osv.osv_memory):
                                 total_costos_pedido += order_line.product_id.standard_price * product_uom_qty
                 self.pool.get('sale.order').write(cr, uid, sale.id, {'total_costos': total_costos_pedido})
                 total_costos_general += total_costos_pedido
-                
+
             for sale in self.pool.get('sale.order').browse(cr, uid, sale_ids, context=context):
                 porcentaje_costos = 0
                 if total_costos_general > 0:
                     porcentaje_costos = sale.total_costos / total_costos_general
                 self.pool.get('sale.order').write(cr, uid, sale.id, {'costos_extras': total_costos_asociados * porcentaje_costos})
-            
+
             move_id = self.pool.get('account.move').create(cr, uid, {'journal_id': w.diario_id.id}, context=context)
             for cuenta_costo_id in totales_cuentas_costos:
                 self.pool.get('account.move.line').create(cr, uid, {'move_id': move_id, 'name':'Cuenta de costos', 'account_id': cuenta_costo_id, 'debit': totales_cuentas_costos[cuenta_costo_id]}, context=context)
