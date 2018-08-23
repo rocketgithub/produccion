@@ -12,26 +12,39 @@ class asignar_costos(osv.osv_memory):
     _columns = {
         'fecha_inicio': fields.date('Fecha inicio', required=True),
         'fecha_fin': fields.date('Fecha fin', required=True),
-        'wizard_move_ids': fields.many2many('account.move', 'produccion_wizard_move_rel', 'wizard_id', 'move_id', string='Costos asociados'),
-        'cuentas_costos_ids': fields.many2many('account.account', 'produccion_wizard_cuentas_costos_rel', 'wizard_id', 'cuenta_costo_id', string='Cuentas de costos'),
+        'wizard_move_line_ids': fields.many2many('account.move.line', 'produccion_wizard_move_line_rel', 'wizard_id', 'move_line_id', string='Costos asociados'),
+#        'wizard_move_ids': fields.many2many('account.move', 'produccion_wizard_move_rel', 'wizard_id', 'move_id', string='Costos asociados'),
+#        'cuentas_costos_ids': fields.many2many('account.account', 'produccion_wizard_cuentas_costos_rel', 'wizard_id', 'cuenta_costo_id', string='Cuentas de costos'),
         'cuenta_inventario_id': fields.many2one('account.account', 'Cuenta de inventario'),
         'cuenta_costo_ventas_id': fields.many2one('account.account', 'Cuenta de costo de ventas'),
         'diario_id': fields.many2one('account.journal', 'Diario'),
     }
 
     def boton_asignar_costos(self, cr, uid, ids, context=None):
-        logging.warn(ids)
+
+
         for w in self.browse(cr, uid, ids, context):
+
+#            totales_cuentas_costos = {}
+#            for account in w.cuentas_costos_ids:
+#                totales_cuentas_costos[account.id] = 0
+
+#            total_costos_asociados = 0
+#            for move in w.wizard_move_ids:
+#                for line in move.line_id:
+#                    if line.account_id.id in totales_cuentas_costos:
+#                        totales_cuentas_costos[line.account_id.id] += line.debit - line.credit
+#                        total_costos_asociados += line.debit - line.credit
+
             totales_cuentas_costos = {}
-            for account in w.cuentas_costos_ids:
-                totales_cuentas_costos[account.id] = 0
+            for line in w.wizard_move_line_ids:
+                if line.account_id.id not in totales_cuentas_costos.keys():
+                    totales_cuentas_costos[line.account_id.id] = 0
 
             total_costos_asociados = 0
-            for move in w.wizard_move_ids:
-                for line in move.line_id:
-                    if line.account_id.id in totales_cuentas_costos:
-                        totales_cuentas_costos[line.account_id.id] += line.debit - line.credit
-                        total_costos_asociados += line.debit - line.credit
+            for line in w.wizard_move_line_ids:
+                totales_cuentas_costos[line.account_id.id] += line.debit - line.credit
+                total_costos_asociados += line.debit - line.credit
 
 #            sale_ids = self.pool.get('sale.order').search(cr, uid, [('date_order', '>=', w.fecha_inicio), ('date_order', '<=', w.fecha_fin)])
             sale_ids = self.pool.get('sale.order').search(cr, uid, [('state', 'not in', ['draft', 'cancel', 'waiting_date']),('date_confirm', '>=', w.fecha_inicio), ('date_confirm', '<=', w.fecha_fin)])
