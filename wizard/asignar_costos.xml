@@ -13,9 +13,17 @@
                     <group>
                         <group>
                             <field name="fecha_inicio"/>
+                        </group>
+                        <group>
                             <field name="fecha_fin"/>
-                            <field name="wizard_move_ids" widget="many2many_tags"/>
-                            <field name="cuentas_costos_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="wizard_move_line_ids"/>
+                    </group>
+                    <group>
+                        <group>
+<!--                            <field name="cuentas_costos_ids" widget="many2many_tags"/>-->
                             <field name="cuenta_inventario_id"/>
                             <field name="cuenta_costo_ventas_id"/>
                             <field name="diario_id"/>
