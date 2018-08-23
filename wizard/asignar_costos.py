@@ -34,7 +34,7 @@ class asignar_costos(osv.osv_memory):
                         total_costos_asociados += line.debit - line.credit
 
 #            sale_ids = self.pool.get('sale.order').search(cr, uid, [('date_order', '>=', w.fecha_inicio), ('date_order', '<=', w.fecha_fin)])
-            sale_ids = self.pool.get('sale.order').search(cr, uid, [('state', '=', 'sent'),('date_confirm', '>=', w.fecha_inicio), ('date_confirm', '<=', w.fecha_fin)])
+            sale_ids = self.pool.get('sale.order').search(cr, uid, [('state', 'not in', ['draft', 'cancel', 'waiting_date']),('date_confirm', '>=', w.fecha_inicio), ('date_confirm', '<=', w.fecha_fin)])
             total_costos_general = 0
             for sale in self.pool.get('sale.order').browse(cr, uid, sale_ids, context=context):
                 total_costos_pedido = 0
@@ -42,7 +42,7 @@ class asignar_costos(osv.osv_memory):
                     if order_line.product_id.type == 'product':
                         for route in order_line.product_id.route_ids:
                             if route.name == 'Manufacture':
-                                total_costos_pedido += order_line.product_id.standard_price * product_uom_qty
+                                total_costos_pedido += order_line.product_id.standard_price * order_line.product_uom_qty
                 self.pool.get('sale.order').write(cr, uid, sale.id, {'total_costos': total_costos_pedido})
                 total_costos_general += total_costos_pedido
 
@@ -52,10 +52,23 @@ class asignar_costos(osv.osv_memory):
                     porcentaje_costos = sale.total_costos / total_costos_general
                 self.pool.get('sale.order').write(cr, uid, sale.id, {'costos_extras': total_costos_asociados * porcentaje_costos})
 
+            logging.getLogger("total_costos_asociados... ").warn(total_costos_asociados)
+
             move_id = self.pool.get('account.move').create(cr, uid, {'journal_id': w.diario_id.id}, context=context)
+#            for cuenta_costo_id in totales_cuentas_costos:
+#                logging.getLogger("cuenta_costo_id... ").warn(cuenta_costo_id)
+#                logging.getLogger("totales_cuentas_costos... ").warn(totales_cuentas_costos)
+#                self.pool.get('account.move.line').create(cr, uid, {'move_id': move_id, 'name':'Cuenta de costos', 'account_id': cuenta_costo_id, 'debit': totales_cuentas_costos[cuenta_costo_id], 'credit': 0}, context=context)
+#            self.pool.get('account.move.line').create(cr, uid, {'move_id': move_id, 'name':'Cuenta de inventario', 'account_id': w.cuenta_inventario_id.id, 'credit': total_costos_asociados}, context=context)
+#            self.pool.get('account.move.line').create(cr, uid, {'move_id': move_id, 'name':'Cuenta de inventario', 'account_id': w.cuenta_inventario_id.id, 'debit': total_costos_asociados}, context=context)
+#            self.pool.get('account.move.line').create(cr, uid, {'move_id': move_id, 'name':'Cuenta de costo de ventas', 'account_id': w.cuenta_costo_ventas_id.id, 'credit': total_costos_asociados}, context=context)
+            
             for cuenta_costo_id in totales_cuentas_costos:
-                self.pool.get('account.move.line').create(cr, uid, {'move_id': move_id, 'name':'Cuenta de costos', 'account_id': cuenta_costo_id, 'debit': totales_cuentas_costos[cuenta_costo_id]}, context=context)
-            self.pool.get('account.move.line').create(cr, uid, {'move_id': move_id, 'name':'Cuenta de inventario', 'account_id': w.cuenta_inventario_id.id, 'credit': total_costos_asociados}, context=context)
+                logging.getLogger("cuenta_costo_id... ").warn(cuenta_costo_id)
+                logging.getLogger("totales_cuentas_costos... ").warn(totales_cuentas_costos)
+                self.pool.get('account.move.line').create(cr, uid, {'move_id': move_id, 'name':'Cuenta de costos', 'account_id': cuenta_costo_id, 'credit': totales_cuentas_costos[cuenta_costo_id], 'debit': 0}, context=context)
             self.pool.get('account.move.line').create(cr, uid, {'move_id': move_id, 'name':'Cuenta de inventario', 'account_id': w.cuenta_inventario_id.id, 'debit': total_costos_asociados}, context=context)
-            self.pool.get('account.move.line').create(cr, uid, {'move_id': move_id, 'name':'Cuenta de costo de ventas', 'account_id': w.cuenta_costo_ventas_id.id, 'credit': total_costos_asociados}, context=context)
+            self.pool.get('account.move.line').create(cr, uid, {'move_id': move_id, 'name':'Cuenta de inventario', 'account_id': w.cuenta_inventario_id.id, 'credit': total_costos_asociados}, context=context)
+            self.pool.get('account.move.line').create(cr, uid, {'move_id': move_id, 'name':'Cuenta de costo de ventas', 'account_id': w.cuenta_costo_ventas_id.id, 'debit': total_costos_asociados}, context=context)
+
         return {'type': 'ir.actions.act_window_close'}
